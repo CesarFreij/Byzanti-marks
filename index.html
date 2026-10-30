@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>النتائج الرسمية لفحص الموسيقى البيزنطية</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Cairo & Amiri for Royal/Ministerial Arabic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti Library for Full-Screen Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --gold-primary: #d4af37;
+            --gold-light: #fde047;
+            --byzantine-dark: #0f172a;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 55%, #090d16 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-amiri {
+            font-family: 'Amiri', serif;
+        }
+
+        /* Subtle Byzantine Ornamental Background Pattern */
+        .bg-ornament {
+            background-image: 
+                radial-gradient(rgba(212, 175, 55, 0.08) 1.5px, transparent 1.5px),
+                radial-gradient(rgba(212, 175, 55, 0.05) 1.5px, #0f172a 1.5px);
+            background-size: 36px 36px;
+            background-position: 0 0, 18px 18px;
+        }
+
+        /* Gold Shimmer Text */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Golden Border Glow */
+        .gold-border-glow {
+            box-shadow: 0 0 25px -5px rgba(234, 179, 8, 0.25), 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+        }
+
+        /* Result Card Pass & Fail Glows */
+        .card-pass-glow {
+            box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.4), 0 20px 40px -15px rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(16, 185, 129, 0.6);
+        }
+
+        .card-fail-glow {
+            box-shadow: 0 0 35px -5px rgba(239, 68, 68, 0.35), 0 20px 40px -15px rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(239, 68, 68, 0.55);
+        }
+
+        /* Smooth Entry & Flip Animations */
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(28px) scale(0.96);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .animate-card-enter {
+            animation: slideUpFade 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.95; }
+            50% { transform: scale(1.04); opacity: 1; }
+        }
+
+        .animate-pulse-slow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .animate-shake {
+            animation: shakeError 0.4s ease-in-out;
+        }
+
+        /* Custom Official Ruled Table Styling */
+        .ministerial-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .ministerial-table th,
+        .ministerial-table td {
+            border-bottom: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .ministerial-table th:first-child,
+        .ministerial-table td:first-child {
+            border-right: none;
+        }
+
+        .ministerial-table th:last-child,
+        .ministerial-table td:last-child {
+            border-left: none;
+        }
+
+        .ministerial-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Number Input Styling */
+        .reg-input {
+            letter-spacing: 0.55em;
+            text-indent: 0.55em;
+        }
+    </style>
+</head>
+<body class="bg-ornament text-slate-100 flex flex-col justify-between min-h-screen py-5 px-3.5 sm:px-6 relative select-none">
+
+    <!-- Ambient Decorative Background Glows -->
+    <div class="fixed top-[-10%] left-[-10%] w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Main Container (Mobile-First Centered Column) -->
+    <main class="w-full max-w-[440px] mx-auto my-auto z-10">
+
+        <!-- ========================================== -->
+        <!-- HEADER & SCHOOL LOGO SECTION               -->
+        <!-- ========================================== -->
+        <header class="text-center mb-5 animate-card-enter">
+            <!-- School Logo Container -->
+            <div class="relative inline-block mb-3">
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-b from-slate-800 to-slate-950 p-1.5 gold-border-glow flex items-center justify-center mx-auto relative overflow-hidden">
+                    
+                    <!-- ========================================================================= -->
+                    <!-- مكان وضع لوغو المدرسة: ضع رابط صورة اللوغو في خاصية src بالأسفل             -->
+                    <!-- أو قم بتعديل متغير SCHOOL_LOGO_URL في كود الجافاسكريبت أسفل الصفحة         -->
+                    <!-- ========================================================================= -->
+                    <img 
+                        id="schoolLogoImg" 
+                        src="" 
+                        alt="لوغو المدرسة" 
+                        class="w-full h-full object-contain rounded-full hidden"
+                        onload="this.classList.remove('hidden'); document.getElementById('defaultLogoSvg').classList.add('hidden');"
+                        onerror="this.classList.add('hidden'); document.getElementById('defaultLogoSvg').classList.remove('hidden');"
+                    />
+
+                    <!-- Default Byzantine Musical & Academic Emblem SVG (Shows if no external logo URL is set) -->
+                    <div id="defaultLogoSvg" class="flex flex-col items-center justify-center w-full h-full rounded-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-amber-500/40 p-2">
+                        <svg class="w-12 h-12 text-amber-400 drop-shadow" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Outer Laurel / Ring -->
+                            <circle cx="32" cy="32" r="28" stroke="url(#goldGrad)" stroke-width="2" stroke-dasharray="4 2"/>
+                            <!-- Byzantine Cross & Musical Lyre / Note Motif -->
+                            <path d="M32 10V54M16 26H48" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="32" cy="26" r="5" fill="#0f172a" stroke="url(#goldGrad)" stroke-width="2.5"/>
+                            <!-- Psaltic Isson / Martyria Swooshes -->
+                            <path d="M20 42C24 46 28 48 32 48C36 48 40 46 44 42" stroke="url(#goldGrad)" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M23 17L41 17" stroke="url(#goldGrad)" stroke-width="2" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="goldGrad" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#FEF08A"/>
+                                    <stop offset="0.5" stop-color="#EAB308"/>
+                                    <stop offset="1" stop-color="#A16207"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span class="text-[9px] font-bold text-amber-300/90 tracking-wider mt-0.5">الموسيقى البيزنطية</span>
+                    </div>
+                </div>
+
+                <!-- Decorative Badge under Logo -->
+                <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm -mt-2 relative z-10">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                    البوابة الامتحانية الرسمية
+                </span>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight gold-gradient-text font-amiri drop-shadow">
+                نتائج فحص الموسيقى البيزنطية
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-300/85 mt-1 font-medium">
+                كشف الدرجات الرسمي للمستويين الأول والثاني
+            </p>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: SEARCH / REGISTRATION INPUT CARD   -->
+        <!-- ========================================== -->
+        <section id="searchSection" class="bg-slate-900/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 gold-border-glow animate-card-enter relative overflow-hidden">
+            <!-- Top Ornamental Gold Bar -->
+            <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-300 to-amber-600"></div>
+
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-400 mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h2 class="text-lg sm:text-xl font-bold text-white">استعلام عن النتيجة الامتحانية</h2>
+                <p class="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
+                    يرجى إدخال <span class="text-amber-300 font-semibold">رقم الاكتتاب</span> الخاص بك والمكون من 4 أرقام لعرض وثيقة النتيجة الرسمية
+                </p>
+            </div>
+
+            <!-- Registration Number Form -->
+            <form id="searchForm" onsubmit="handleResultSearch(event)" class="space-y-5">
+                <div>
+                    <label for="regNumberInput" class="block text-xs font-bold text-slate-300 text-center mb-2.5">
+                        رقم الاكتتاب (4 أرقام)
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="regNumberInput" 
+                            inputmode="numeric" 
+                            pattern="[0-9]*" 
+                            maxlength="4" 
+                            placeholder="••••"
+                            autocomplete="off"
+                            class="reg-input w-full bg-slate-950/90 border-2 border-slate-700 focus:border-amber-400 focus:ring-4 focus:ring-amber-500/20 rounded-2xl py-4 text-center text-3xl font-black text-amber-300 placeholder-slate-700 transition-all duration-200 outline-none shadow-inner"
+                            oninput="handleInputFormatting(this)"
+                        />
+                    </div>
+
+                    <!-- Error Message Box (Hidden by default) -->
+                    <div id="errorBox" class="hidden mt-3 p-3 rounded-xl bg-red-500/15 border border-red-500/40 text-red-200 text-xs font-semibold flex items-center justify-center gap-2 text-center">
+                        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span id="errorText">رقم الاكتتاب غير صحيح، يرجى التأكد من الرقم والمحاولة مجدداً.</span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-slate-950 font-black text-base sm:text-lg shadow-lg shadow-amber-500/25 transition-all duration-200 flex items-center justify-center gap-2.5"
+                >
+                    <span id="submitBtnText">عرض النتيجة الرسمية</span>
+                    <svg id="submitBtnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <!-- Loading Spinner (Hidden by default) -->
+                    <svg id="loadingSpinner" class="hidden animate-spin h-5 w-5 text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Info Footer inside Search Card -->
+            <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[10.5px] text-slate-400">
+                <span class="flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    علامة النجاح: <strong class="text-slate-200">75 للأول | 70 للثاني</strong>
+                </span>
+                <span>النظري: 40 | العملي: 60</span>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: OFFICIAL MINISTERIAL RESULT CARD   -->
+        <!-- ========================================== -->
+        <section id="resultSection" class="hidden bg-white text-slate-900 rounded-3xl overflow-hidden animate-card-enter relative">
+            
+            <!-- 1. TOP STATUS HEADER BANNER (حالة الشخص في الأعلى باللون الأخضر أو الأحمر) -->
+            <div id="statusHeaderBanner" class="px-6 py-5 text-white text-center relative overflow-hidden transition-colors duration-300">
+                <!-- Subtle Diagonal Pattern Overlay -->
+                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                
+                <div class="relative z-10 flex flex-col items-center justify-center">
+                    <div id="statusIconContainer" class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mb-2 shadow-inner border border-white/30">
+                        <!-- Dynamic SVG Icon Injected via JS -->
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider bg-black/20 px-3 py-0.5 rounded-full mb-1">
+                        الحالة الامتحانية النهائية
+                    </span>
+                    <h2 id="statusBannerTitle" class="text-2xl sm:text-3xl font-black tracking-wide drop-shadow-sm">
+                        <!-- ناجح ومُرفّع / غير مجتاز -->
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 2. STUDENT NAME & DETAILS CENTERED (اسم الشخص بالنص) -->
+            <div class="px-5 pt-6 pb-5 text-center bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
+                <p class="text-xs font-bold text-slate-400 mb-1">اسم المتقدم للفحص</p>
+                <h3 id="studentNameDisplay" class="text-2xl sm:text-3xl font-black text-slate-900 mb-3 py-1 px-4 rounded-2xl bg-slate-100/80 border border-slate-200/80 inline-block min-w-[230px] shadow-sm">
+                    <!-- اسم الطالب هنا -->
+                </h3>
+
+                <!-- Level & Registration Number Badges -->
+                <div class="flex items-center justify-center gap-2.5 flex-wrap mt-1">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <span id="studentLevelBadge">المستوى الأول</span>
+                    </span>
+
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-900 border border-amber-200">
+                        <span>رقم الاكتتاب:</span>
+                        <strong id="studentRegBadge" class="font-mono text-sm tracking-wider">0000</strong>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3. RULED CENTERED GRADES TABLE (العلامات مسطرة بالنص: نظري، عملي، المجموع) -->
+            <div class="px-5 py-5 bg-white">
+                <div class="flex items-center justify-between mb-2.5 px-1">
+                    <span class="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                        كشف العلامات التفصيلي
+                    </span>
+                    <span id="passingScoreDisplay" class="text-[11px] font-bold text-slate-400">علامة النجاح: 75%</span>
+                </div>
+
+                <div class="border-2 border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                    <table class="ministerial-table text-center">
+                        <thead>
+                            <tr class="bg-slate-800 text-white text-xs font-bold">
+                                <th class="py-3 px-3 w-5/12">القسم الامتحاني</th>
+                                <th class="py-3 px-2 w-3/12">العلامة القصوى</th>
+                                <th class="py-3 px-3 w-4/12">علامة الطالب</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm font-bold text-slate-800">
+                            <!-- Theory Row -->
+                            <tr class="bg-white hover:bg-slate-50/80 transition-colors">
+                                <td class="py-3.5 px-3 text-slate-700 font-extrabold">العلامة النظرية</td>
+                                <td class="py-3.5 px-2 text-slate-500 font-semibold">40</td>
+                                <td id="theoryScoreCell" class="py-3.5 px-3 text-base font-black text-slate-900">0</td>
+                            </tr>
+                            <!-- Practical Row -->
+                            <tr class="bg-slate-50/60 hover:bg-slate-50 transition-colors">
+                                <td class="py-3.5 px-3 text-slate-700 font-extrabold">العلامة العملية</td>
+                                <td class="py-3.5 px-2 text-slate-500 font-semibold">60</td>
+                                <td id="practicalScoreCell" class="py-3.5 px-3 text-base font-black text-slate-900">0</td>
+                            </tr>
+                            <!-- Total Row (Highlighted) -->
+                            <tr id="totalScoreRow" class="bg-emerald-50/90 border-t-2 border-slate-300">
+                                <td class="py-4 px-3 text-base font-black" id="totalLabelCell">المجموع العام</td>
+                                <td class="py-4 px-2 text-xs font-extrabold text-slate-600">100</td>
+                                <td id="totalScoreCell" class="py-4 px-3 text-xl sm:text-2xl font-black">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Visual Score Progress Bar -->
+                <div class="mt-3.5 px-1">
+                    <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5">
+                        <div id="scoreProgressBar" class="h-full rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. OFFICIAL PROMOTION OR REPEAT DECISION MESSAGE BOX -->
+            <div class="px-5 pb-5">
+                <div id="decisionMessageBox" class="p-4 rounded-2xl border-2 text-center relative overflow-hidden">
+                    <p id="decisionTitle" class="text-sm sm:text-base font-black mb-1"></p>
+                    <p id="decisionBody" class="text-xs sm:text-sm font-semibold leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- 5. ACTION BUTTONS (Celebrate Again / Search Another ID) -->
+            <div class="px-5 pb-6 pt-1 flex flex-col gap-2.5">
+                <!-- Celebrate Confetti Button (Only visible when passed) -->
+                <button 
+                    id="retriggerConfettiBtn"
+                    onclick="launchCelebrationConfetti()"
+                    class="hidden w-full py-3 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 active:scale-[0.99] text-emerald-800 border border-emerald-300 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
+                >
+                    <span>إطلاق القصاصات الاحتفالية مجدداً 🎉</span>
+                </button>
+
+                <!-- Back to Search Button -->
+                <button 
+                    onclick="resetToSearchView()"
+                    class="w-full py-3.5 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span>البحث عن رقم اكتتاب آخر</span>
+                </button>
+            </div>
+
+            <!-- Official Stamp / Footer Inside Result Card -->
+            <div class="bg-slate-100 px-5 py-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500 font-semibold">
+                <span>وثيقة نتائج إلكترونية مصدقة</span>
+                <span id="timestampDisplay">البيزنطي - دورة 2026</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Page Footer -->
+    <footer class="text-center text-[11px] text-slate-400/70 mt-6 z-10">
+        جميع الحقوق محفوظة © لجنة امتحانات الموسيقى البيزنطية
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION LOGIC & STUDENT DATABASE       -->
+    <!-- ========================================== -->
+    <script>
+        // ============================================================================
+        // 1. إعداد لوغو المدرسة (SCHOOL LOGO CONFIGURATION)
+        // ============================================================================
+        const SCHOOL_LOGO_URL = "logo.png"; 
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const logoImg = document.getElementById("schoolLogoImg");
+            if (SCHOOL_LOGO_URL && SCHOOL_LOGO_URL.trim() !== "") {
+                logoImg.src = SCHOOL_LOGO_URL.trim();
+            }
+        });
+
+        // ============================================================================
+        // 2. قاعدة بيانات الطلاب الرسمية 
+        // ============================================================================
+        const STUDENTS_DB = [
+            // ---------------- المستوى الأول ----------------
+            { id: "1574", name: "هبة العايق", level: 1, theory: 32.75, practical: 49, total: 81.75 },
+            { id: "2935", name: "جويل اسحق", level: 1, theory: 21, practical: 47, total: 68 },
+            { id: "4176", name: "ماري وردة", level: 1, theory: 38.25, practical: 49.5, total: 87.75 },
+            { id: "5821", name: "رنيم تيلبا", level: 1, theory: 22, practical: 39, total: 61 },
+            { id: "3649", name: "كاترين عاصي", level: 1, theory: 27, practical: 49, total: 76 },
+            { id: "7294", name: "باتريسيا اسحق", level: 1, theory: 34.75, practical: 53, total: 87.75 },
+            { id: "8513", name: "سندريلا قشو", level: 1, theory: 31, practical: 54, total: 85 },
+            { id: "6148", name: "موريس صائغ", level: 1, theory: 33, practical: 51, total: 84 },
+            { id: "9372", name: "جورج زيتون", level: 1, theory: 26.5, practical: 45, total: 71.5 },
+            { id: "4728", name: "انجيلا فرح", level: 1, theory: 34, practical: 52, total: 86 },
+            { id: "1956", name: "باتيل تفنكجي", level: 1, theory: 38.5, practical: 57, total: 95.5 },
+            { id: "8264", name: "رزوق", level: 1, theory: 31.25, practical: 40, total: 71.25 },
+
+            // ---------------- المستوى الثاني ----------------
+            { id: "3195", name: "بولس كسبو", level: 2, theory: 40, practical: 45, total: 85 },
+            { id: "6482", name: "رامي حمصي", level: 2, theory: 31, practical: 43, total: 74 },
+            { id: "5317", name: "رين لوزة", level: 2, theory: 37, practical: 51.5, total: 88.5 },
+            { id: "7843", name: "ميريام حنا", level: 2, theory: 35, practical: 47, total: 82 },
+            { id: "2569", name: "ماريا فرح", level: 2, theory: 24, practical: 46, total: 70 },
+            { id: "9134", name: "جولي فتال", level: 2, theory: 15, practical: 51.5, total: 66.5 },
+            { id: "4681", name: "عفراء الياس", level: 2, theory: 10, practical: 38, total: 48 },
+            { id: "1739", name: "باتريسيا مرجانة", level: 2, theory: 33.5, practical: 52.75, total: 86.25 },
+            { id: "8925", name: "نور مخول", level: 2, theory: 40, practical: 51, total: 91 },
+            { id: "6257", name: "نور لوزة", level: 2, theory: 39.5, practical: 44.5, total: 84 },
+            { id: "3814", name: "انجي مخول", level: 2, theory: 27, practical: 40, total: 67 }
+        ];
+
+        function normalizeDigits(str) {
+            return str
+                .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+                .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+                .replace(/[^0-9]/g, "");
+        }
+
+        function handleInputFormatting(inputEl) {
+            const cleaned = normalizeDigits(inputEl.value);
+            inputEl.value = cleaned.slice(0, 4);
+            document.getElementById("errorBox").classList.add("hidden");
+        }
+
+        function handleResultSearch(event) {
+            event.preventDefault();
+            const inputEl = document.getElementById("regNumberInput");
+            const regCode = normalizeDigits(inputEl.value).trim();
+
+            if (regCode.length !== 4) {
+                showError("يرجى إدخال رقم اكتتاب مكون من 4 أرقام بالكامل.");
+                return;
+            }
+
+            const student = STUDENTS_DB.find(s => s.id === regCode);
+
+            if (!student) {
+                showError("رقم الاكتتاب المدخل غير مسجل في القوائم الرسمية، يرجى التأكد من الرقم.");
+                return;
+            }
+
+            const submitBtn = document.getElementById("submitBtn");
+            const submitBtnText = document.getElementById("submitBtnText");
+            const submitBtnIcon = document.getElementById("submitBtnIcon");
+            const loadingSpinner = document.getElementById("loadingSpinner");
+
+            submitBtn.disabled = true;
+            submitBtnText.textContent = "جاري استخراج الوثيقة...";
+            submitBtnIcon.classList.add("hidden");
+            loadingSpinner.classList.remove("hidden");
+
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtnText.textContent = "عرض النتيجة الرسمية";
+                submitBtnIcon.classList.remove("hidden");
+                loadingSpinner.classList.add("hidden");
+
+                renderStudentResult(student);
+            }, 550);
+        }
+
+        function showError(msg) {
+            const errorBox = document.getElementById("errorBox");
+            const errorText = document.getElementById("errorText");
+            const searchSection = document.getElementById("searchSection");
+
+            errorText.textContent = msg;
+            errorBox.classList.remove("hidden");
+            searchSection.classList.remove("animate-shake");
+            void searchSection.offsetWidth; 
+            searchSection.classList.add("animate-shake");
+        }
+
+        function renderStudentResult(student) {
+            // تحديد علامة النجاح بناءً على مستوى الطالب المعين
+            const passingScore = student.level === 2 ? 70 : 75;
+            const isPassed = student.total >= passingScore;
+            
+            const searchSection = document.getElementById("searchSection");
+            const resultSection = document.getElementById("resultSection");
+
+            const statusHeaderBanner = document.getElementById("statusHeaderBanner");
+            const statusIconContainer = document.getElementById("statusIconContainer");
+            const statusBannerTitle = document.getElementById("statusBannerTitle");
+
+            const studentNameDisplay = document.getElementById("studentNameDisplay");
+            const studentLevelBadge = document.getElementById("studentLevelBadge");
+            const studentRegBadge = document.getElementById("studentRegBadge");
+            const passingScoreDisplay = document.getElementById("passingScoreDisplay");
+
+            const theoryScoreCell = document.getElementById("theoryScoreCell");
+            const practicalScoreCell = document.getElementById("practicalScoreCell");
+            const totalScoreRow = document.getElementById("totalScoreRow");
+            const totalLabelCell = document.getElementById("totalLabelCell");
+            const totalScoreCell = document.getElementById("totalScoreCell");
+            const scoreProgressBar = document.getElementById("scoreProgressBar");
+
+            const decisionMessageBox = document.getElementById("decisionMessageBox");
+            const decisionTitle = document.getElementById("decisionTitle");
+            const decisionBody = document.getElementById("decisionBody");
+            const retriggerConfettiBtn = document.getElementById("retriggerConfettiBtn");
+
+            // تعبئة البيانات الأساسية
+            studentNameDisplay.textContent = student.name;
+            studentLevelBadge.textContent = student.level === 1 ? "المستوى الأول" : "المستوى الثاني";
+            studentRegBadge.textContent = student.id;
+            passingScoreDisplay.textContent = `علامة النجاح: ${passingScore}%`;
+
+            theoryScoreCell.textContent = student.theory;
+            practicalScoreCell.textContent = student.practical;
+            totalScoreCell.textContent = `${student.total} / 100`;
+
+            resultSection.classList.remove("card-pass-glow", "card-fail-glow");
+            statusHeaderBanner.className = "px-6 py-5 text-white text-center relative overflow-hidden transition-colors duration-300";
+            totalScoreRow.className = "border-t-2 border-slate-300";
+            decisionMessageBox.className = "p-4 rounded-2xl border-2 text-center relative overflow-hidden";
+
+            if (isPassed) {
+                resultSection.classList.add("card-pass-glow");
+                statusHeaderBanner.classList.add("bg-gradient-to-br", "from-emerald-600", "via-emerald-500", "to-teal-700");
+
+                statusIconContainer.innerHTML = `
+                    <svg class="w-8 h-8 text-white drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                `;
+
+                const nextLevelText = student.level === 1 ? "المستوى الثاني" : "المستوى الثالث";
+                statusBannerTitle.textContent = "ناجح";
+
+                totalScoreRow.classList.add("bg-emerald-50");
+                totalLabelCell.className = "py-4 px-3 text-base font-black text-emerald-900";
+                totalScoreCell.className = "py-4 px-3 text-xl sm:text-2xl font-black text-emerald-700";
+
+                scoreProgressBar.className = "h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-emerald-500 to-teal-400";
+
+                decisionMessageBox.classList.add("bg-emerald-50/90", "border-emerald-300", "text-emerald-950");
+                decisionTitle.className = "text-sm sm:text-base font-black mb-1.5 text-emerald-800";
+                decisionTitle.textContent = `🎉 ألف مبروك النجاح والتفوق يا ${student.name}!`;
+                decisionBody.className = "text-xs sm:text-sm font-bold leading-relaxed text-emerald-700";
+                decisionBody.textContent = `لقد اجتزت الفحص بجدارة واستحقاق، وتم ترفيعك رسمياً إلى ${nextLevelText}. نبارك لك هذا الإنجاز المميز ونتمنى لك دوام التقدم والتألق في مسيرتك البيزنطية.`;
+
+                retriggerConfettiBtn.classList.remove("hidden");
+            } else {
+                resultSection.classList.add("card-fail-glow");
+                statusHeaderBanner.classList.add("bg-gradient-to-br", "from-red-600", "via-rose-600", "to-red-800");
+
+                statusIconContainer.innerHTML = `
+                    <svg class="w-8 h-8 text-white drop-shadow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                `;
+
+                const currentLevelText = student.level === 1 ? "المستوى الأول" : "المستوى الثاني";
+                statusBannerTitle.textContent = `راسب`;
+
+                totalScoreRow.classList.add("bg-red-50");
+                totalLabelCell.className = "py-4 px-3 text-base font-black text-red-900";
+                totalScoreCell.className = "py-4 px-3 text-xl sm:text-2xl font-black text-red-700";
+
+                scoreProgressBar.className = "h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-red-500 to-rose-400";
+
+                decisionMessageBox.classList.add("bg-red-50/90", "border-red-300", "text-red-950");
+                decisionTitle.className = "text-sm sm:text-base font-black mb-1.5 text-red-800";
+                decisionTitle.textContent = `حظاً أوفر في الدورة القادمة`;
+                // هنا يتم عرض المتغير الخاص بالنجاح حسب المستوى ضمن رسالة الرسوب
+                decisionBody.className = "text-xs sm:text-sm font-bold leading-relaxed text-red-700";
+                decisionBody.textContent = `نقدّر جهدك المبذول والتزامك، إلا أن مجموعك العام (${student.total}) لم يستوفِ الحد الأدنى للنجاح (${passingScore} علامة). عليه، يتوجب إعادة ${currentLevelText} لتمكين مهاراتك النظرية والعملية بشكل أقوى. نثق بقدرتك على التعويض والنجاح قريباً.`;
+
+                retriggerConfettiBtn.classList.add("hidden");
+            }
+
+            searchSection.classList.add("hidden");
+            resultSection.classList.remove("hidden");
+
+            scoreProgressBar.style.width = "0%";
+            setTimeout(() => {
+                scoreProgressBar.style.width = `${Math.min(100, Math.max(5, student.total))}%`;
+            }, 100);
+
+            if (isPassed) {
+                launchCelebrationConfetti();
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function resetToSearchView() {
+            const searchSection = document.getElementById("searchSection");
+            const resultSection = document.getElementById("resultSection");
+            const inputEl = document.getElementById("regNumberInput");
+
+            resultSection.classList.add("hidden");
+            searchSection.classList.remove("hidden");
+            inputEl.value = "";
+            inputEl.focus();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function launchCelebrationConfetti() {
+            if (typeof confetti !== "function") return;
+
+            const duration = 3500;
+            const animationEnd = Date.now() + duration;
+            const colors = ['#10b981', '#fbbf24', '#34d399', '#fde047', '#ffffff', '#60a5fa'];
+
+            confetti({
+                particleCount: 90,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: colors,
+                zIndex: 9999
+            });
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 35 * (timeLeft / duration);
+                confetti({
+                    particleCount: particleCount,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.65 },
+                    colors: colors,
+                    zIndex: 9999
+                });
+                confetti({
+                    particleCount: particleCount,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.65 },
+                    colors: colors,
+                    zIndex: 9999
+                });
+            }, 250);
+        }
+    </script>
+</body>
+</html>
